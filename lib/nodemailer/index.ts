@@ -1,7 +1,6 @@
-"use server"
+"use server";
 
 import { EmailContent, EmailProductInfo, NotificationType } from '@/types';
-import { log } from 'console';
 import nodemailer from 'nodemailer';
 
 const Notification = {
@@ -9,21 +8,20 @@ const Notification = {
   CHANGE_OF_STOCK: 'CHANGE_OF_STOCK',
   LOWEST_PRICE: 'LOWEST_PRICE',
   THRESHOLD_MET: 'THRESHOLD_MET',
-}
+};
 
 export async function generateEmailBody(
   product: EmailProductInfo,
   type: NotificationType
-  ) {
+) {
   const THRESHOLD_PERCENTAGE = 40;
-  // Shorten the product title
   const shortenedTitle =
     product.title.length > 20
       ? `${product.title.substring(0, 20)}...`
       : product.title;
 
-  let subject = "";
-  let body = "";
+  let subject = '';
+  let body = '';
 
   switch (type) {
     case Notification.WELCOME:
@@ -82,15 +80,13 @@ export async function generateEmailBody(
 }
 
 const transporter = nodemailer.createTransport({
-  pool: true,
   service: 'hotmail',
-  port: 587,
+  port: 587, // Changed port to 587 for TLS
   auth: {
     user: 'stejal2231@outlook.com',
     pass: process.env.EMAIL_PASSWORD,
   },
-  maxConnections: 1
-})
+});
 
 export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) => {
   const mailOptions = {
@@ -98,12 +94,22 @@ export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) =>
     to: sendTo,
     html: emailContent.body,
     subject: emailContent.subject,
-    
-  }
+  };
 
   transporter.sendMail(mailOptions, (error: any, info: any) => {
-    if(error) return console.log(error);
-    
-    console.log('Email sent: ', info);
-  })
-}
+    if (error) {
+      console.error('Error occurred: ', error.message); // Enhanced error logging
+      return;
+    }
+    console.log('Email sent: ', info); // Added .response to get detailed info
+  });
+};
+
+// Test the transporter configuration
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error('Transporter verification failed: ', error.message);
+  } else {
+    console.log('Transporter is ready to send messages');
+  }
+});
