@@ -83,14 +83,14 @@ const transporter = nodemailer.createTransport({
   service: 'hotmail',
   port: 587, // Changed port to 587 for TLS
   auth: {
-    user: 'stejal2231@outlook.com',
+    user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD,
   },
 });
 
 export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) => {
   const mailOptions = {
-    from: 'stejal2231@outlook.com',
+    from: process.env.EMAIL_USER,
     to: sendTo,
     html: emailContent.body,
     subject: emailContent.subject,
