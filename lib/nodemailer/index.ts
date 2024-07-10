@@ -16,9 +16,7 @@ export async function generateEmailBody(
 ) {
   const THRESHOLD_PERCENTAGE = 40;
   const shortenedTitle =
-    product.title.length > 20
-      ? `${product.title.substring(0, 20)}...`
-      : product.title;
+    product.title.length > 20 ? `${product.title.substring(0, 20)}...` : product.title;
 
   let subject = '';
   let body = '';
@@ -80,36 +78,44 @@ export async function generateEmailBody(
 }
 
 const transporter = nodemailer.createTransport({
-  service: 'hotmail',
-  port: 587, // Changed port to 587 for TLS
+  host: 'smtp-mail.outlook.com',
+  port: 587,
+  secure: false, // STARTTLS requires false
   auth: {
-    user: process.env.EMAIL_USER,
+    user: 'stejal2231@outlook.com',
     pass: process.env.EMAIL_PASSWORD,
   },
+  tls: {
+    ciphers: 'SSLv3', // Adjust according to Outlook's TLS requirements if necessary
+  },
+});
+
+// Test the transporter setup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('Nodemailer verification error:', error);
+  } else {
+    console.log('Nodemailer is ready to send emails',);
+  }
 });
 
 export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) => {
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: 'stejal2231@outlook.com',
     to: sendTo,
-    html: emailContent.body,
     subject: emailContent.subject,
+    html: emailContent.body,
   };
 
-  transporter.sendMail(mailOptions, (error: any, info: any) => {
-    if (error) {
-      console.error('Error occurred: ', error.message); // Enhanced error logging
-      return;
-    }
-    console.log('Email sent: ', info); // Added .response to get detailed info
-  });
+  try {
+    console.log("Sending email with the following options:", mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw new Error('Failed to send email.');
+  }
 };
 
-// Test the transporter configuration
-transporter.verify(function(error, success) {
-  if (error) {
-    console.error('Transporter verification failed: ', error.message);
-  } else {
-    console.log('Transporter is ready to send messages');
-  }
-});
+// Additional logging for environment variables and connection
+
