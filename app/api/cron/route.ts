@@ -37,7 +37,6 @@ export async function GET(request: Request) {
           priceHistory: updatedPriceHistory,
           lowestPrice: getLowestPrice(updatedPriceHistory),
           highestPrice: getHighestPrice(updatedPriceHistory),
-          averagePrice: getAveragePrice(updatedPriceHistory),
         };
 
         // Update Products in DB
